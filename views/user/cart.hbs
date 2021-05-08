@@ -1,0 +1,81 @@
+<section>
+<table class="table" id="cart">
+  <thead>
+    <tr>
+      <th scope="col">Items</th>
+      <th scope="col">Tiltle</th>
+      <th>Price</th>
+      <th scope="col">Quantity</th>
+      <th>Remove</th>
+    </tr>
+  </thead>
+    {{#if (eq products.length 0)}}
+      <tbody>
+          <h5>Cart is Empty</h5>
+      </tbody>
+    {{else}}
+  <tbody>
+      {{#each products}}
+    <tr>
+      <td>
+          <img src="{{this.products.img}}" alt="" style="width:70px;height:70px">
+      </td>
+      <td>{{this.products.Name}}</td>
+      <td>Rs.{{this.products.Price}}</td>
+      <td>
+    <button class="cart-item-count mr-3" onclick="changeQuantity('{{this._id}}','{{this.products._id}}',-1)">-</button><span id="{{this.products._id}}">{{this.quantity}}</span>  <button class="cart-item-count ml-3" onclick="changeQuantity('{{this._id}}','{{this.products._id}}',1)">+</button></td>
+         <td><a href="/removecart/{{this._id}},{{this.products._id}}" class="btn btn-danger">Remove</a></td>
+    </tr>
+    {{/each}}
+  </tbody>
+  {{/if}}
+
+</table>
+<div class="float-right pr-5">
+<h5 class="float-left mr-5" style="margin-left:1200px;margin-top: 55px;">Total: Rs. <span id="total">{{total}}</span></h5>
+{{#if (neq products.length 0)}}<a href="/checkout" class="btn btn-success mt-3" style="width: 10%;float:right;margin-right: 487px;margin-top: -555px;"><b>Checkout</b></a> {{/if}}
+</div>
+</section>
+<script>
+  function changeQuantity(cartId,proId,count)
+  {
+    let quantity = parseInt(document.getElementById(proId).innerHTML)
+    let total = document.getElementById('#total')
+    $.ajax(
+      {
+        url:'/changeProductQuantity',
+        data:{
+          cart:cartId,
+          product:proId,
+          count:count,
+          quantity:quantity
+        },
+        method:'post',
+        success:(response)=>
+        {
+          if(response.removeProduct)
+          {
+            alert("Product Removed from cart"+response.removeProduct);
+            location.reload()
+          }
+          else
+          {
+            document.getElementById(proId).innerHTML = quantity + count;
+            document.getElementById('total').innerHTML = response.total;
+          }
+
+        }
+      }
+    )
+  }
+</script>
+
+<script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.24/js/dataTables.bootstrap4.min.js"></script>
+
+<script>
+    $(document).ready( function () {
+    $('#cart').DataTable();
+} );
+
+</script>
